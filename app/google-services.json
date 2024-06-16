@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "199575139831",
+    "project_id": "countdowntimer-84411",
+    "storage_bucket": "countdowntimer-84411.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:199575139831:android:41cfffb73f5ea67bb36af2",
+        "android_client_info": {
+          "package_name": "com.wavky.cdtimer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZUx8JXwiOUibDLkgFlKFRQVBfS584qes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:199575139831:android:e620600c8c9c5b17b36af2",
+        "android_client_info": {
+          "package_name": "com.wavky.cdtimer.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZUx8JXwiOUibDLkgFlKFRQVBfS584qes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

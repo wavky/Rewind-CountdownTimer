@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <style name="timer_text" parent="android:Widget.TextView">
+    <item name="android:textSize">48sp</item>
+    <item name="fontFamily">@font/orbitron</item>
+    <item name="layout_constraintVertical_bias">0.06</item>
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+  </style>
+
+  <style name="countdown_button_text" parent="android:Widget.TextView">
+    <item name="android:textSize">32sp</item>
+    <item name="fontFamily">@font/orbitron</item>
+    <item name="layout_constraintVertical_bias">0.9</item>
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:paddingVertical">12dp</item>
+  </style>
+</resources>

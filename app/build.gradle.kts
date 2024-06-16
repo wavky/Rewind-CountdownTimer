@@ -6,8 +6,8 @@ plugins {
   id("org.jetbrains.kotlin.android")
   id("kotlin-parcelize")
   id("org.jetbrains.kotlin.kapt")
-//  id("com.google.gms.google-services")
-//  id("com.google.firebase.crashlytics")
+  id("com.google.gms.google-services")
+  id("com.google.firebase.crashlytics")
   id("androidx.navigation.safeargs.kotlin")
 }
 

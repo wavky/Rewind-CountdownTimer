@@ -6,40 +6,213 @@
     android:layout_height="match_parent"
     tools:context=".app.main.MainFragment"
     >
+
   <androidx.constraintlayout.widget.Group
-      android:id="@+id/no_image_group"
-      android:layout_width="0dp"
-      android:layout_height="0dp"
-      app:constraint_referenced_ids="no_image,no_image_text"
+      android:id="@+id/timer_hms_group"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:visibility="gone"
+      app:constraint_referenced_ids="hms_hour_text,hms_minute_text,hms_second_text,hm_colon_text,ms_colon_text"
+      tools:visibility="visible"
       />
+
+  <androidx.constraintlayout.widget.Group
+      android:id="@+id/timer_ms_group"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:visibility="gone"
+      app:constraint_referenced_ids="ms_minute_text,ms_second_text,colon_text"
+      />
+
   <ImageView
-      android:id="@+id/ad_image"
+      android:id="@+id/clock_bg"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:scaleType="fitCenter"
+      android:src="@drawable/clock_bg"
       />
+
   <ImageView
-      android:id="@+id/no_image"
+      android:id="@+id/hour_hand"
       android:layout_width="0dp"
-      android:layout_height="0dp"
-      android:src="@drawable/no_image_24"
-      app:layout_constraintBottom_toTopOf="@id/no_image_text"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHeight_percent="0.6"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_chainStyle="packed"
-      />
-  <TextView
-      android:id="@+id/no_image_text"
-      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:gravity="center"
-      android:text="@string/no_image"
-      android:textSize="42sp"
+      android:src="@drawable/clock_hand_hour"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/no_image"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.545"
+      app:layout_constraintWidth_percent="0.30"
+      tools:rotation="270"
+      />
+
+  <ImageView
+      android:id="@+id/minute_hand"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:src="@drawable/clock_hand_minute"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.545"
+      app:layout_constraintWidth_percent="0.42"
+      tools:rotation="0"
+      />
+
+  <ImageView
+      android:id="@+id/second_hand"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:src="@drawable/clock_hand_second"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.48"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.545"
+      app:layout_constraintWidth_percent="0.5"
+      tools:rotation="27"
+      />
+
+  <TextView
+      android:id="@+id/hm_colon_text"
+      style="@style/timer_text"
+      android:text="@string/time_colon"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.35"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <TextView
+      android:id="@+id/ms_colon_text"
+      style="@style/timer_text"
+      android:text="@string/time_colon"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.65"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <TextView
+      android:id="@+id/hms_hour_text"
+      style="@style/timer_text"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@id/hm_colon_text"
+      app:layout_constraintHorizontal_bias="0.8"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="01"
+      />
+
+  <TextView
+      android:id="@+id/hms_minute_text"
+      style="@style/timer_text"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@id/ms_colon_text"
+      app:layout_constraintStart_toEndOf="@id/hm_colon_text"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="23"
+      />
+
+  <TextView
+      android:id="@+id/hms_second_text"
+      style="@style/timer_text"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.2"
+      app:layout_constraintStart_toEndOf="@id/ms_colon_text"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="45"
+      />
+
+  <TextView
+      android:id="@+id/colon_text"
+      style="@style/timer_text"
+      android:text="@string/time_colon"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <TextView
+      android:id="@+id/ms_minute_text"
+      style="@style/timer_text"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@id/colon_text"
+      app:layout_constraintHorizontal_bias="0.8"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="23"
+      />
+
+  <TextView
+      android:id="@+id/ms_second_text"
+      style="@style/timer_text"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.2"
+      app:layout_constraintStart_toEndOf="@id/colon_text"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="45"
+      />
+
+  <com.wavky.cdtimer.app.main.CircleGestureView
+      android:id="@+id/circle_gesture_view"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      />
+
+  <ImageView
+      android:id="@+id/sound_button"
+      android:layout_width="52dp"
+      android:layout_height="52dp"
+      android:src="@drawable/ic_sound"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <ImageView
+      android:id="@+id/forbid_mark"
+      android:layout_width="32dp"
+      android:layout_height="32dp"
+      android:src="@drawable/ic_forbid"
+      android:visibility="gone"
+      app:layout_constraintBottom_toBottomOf="@id/sound_button"
+      app:layout_constraintEnd_toEndOf="@id/sound_button"
+      app:layout_constraintStart_toStartOf="@id/sound_button"
+      app:layout_constraintTop_toTopOf="@id/sound_button"
+      />
+
+  <Button
+      android:id="@+id/reset_button"
+      style="@style/countdown_button_text"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:elevation="4dp"
+      android:text="@string/reset"
+      android:translationZ="2dp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@id/start_button"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <Button
+      android:id="@+id/start_button"
+      style="@style/countdown_button_text"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:elevation="8dp"
+      android:text="@string/start"
+      android:translationZ="2dp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toEndOf="@id/reset_button"
+      app:layout_constraintTop_toTopOf="parent"
       />
 </androidx.constraintlayout.widget.ConstraintLayout>

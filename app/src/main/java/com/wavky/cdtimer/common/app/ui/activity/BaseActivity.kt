@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 
 abstract class BaseActivity : AppCompatActivity() {
 
-  protected open val finishOnBackPress = false
+  protected open val finishOnBackPress = true
 
   private var contentView: View? = null
   private var systemBarHidingTimerJob: Job? = null

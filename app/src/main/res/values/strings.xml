@@ -1,6 +1,8 @@
 <resources>
   <string name="app_name">CDTimer</string>
 
-  <string name="app_info">%1$s:%2$s v%3$s</string>
-  <string name="no_image">No Image</string>
+  <string name="time_colon"> : </string>
+  <string name="reset">Reset</string>
+  <string name="start">Start</string>
+  <string name="stop">Stop</string>
 </resources>

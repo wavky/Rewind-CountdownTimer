@@ -9,14 +9,14 @@ import android.widget.Toast
 import com.wavky.cdtimer.BuildConfig
 
 object Debug {
-  private val DEBUG = BuildConfig.DEBUG
+  val isEnable = BuildConfig.DEBUG
 
   /**
    * デフォルトのタグを使用してメッセージを表示します。<br></br>
    * デフォルトで呼び出し元のクラス名がタグとして使用されます。
    */
   fun log(message: String?) {
-    if (DEBUG && !TextUtils.isEmpty(message)) {
+    if (isEnable && !TextUtils.isEmpty(message)) {
       log(shortClassName, message)
     }
   }
@@ -27,7 +27,7 @@ object Debug {
    * @param message メッセージ
    */
   fun log(tag: String?, message: String?) {
-    if (DEBUG && !TextUtils.isEmpty(message)) {
+    if (isEnable && !TextUtils.isEmpty(message)) {
       Log.d(tag, message!!)
     }
   }
@@ -39,7 +39,7 @@ object Debug {
    * @param tr [Throwable]
    */
   fun log(message: String?, tr: Throwable?) {
-    if (DEBUG) {
+    if (isEnable) {
       Log.d(shortClassName, message, tr)
     }
   }
@@ -51,7 +51,7 @@ object Debug {
    * @param tr [Throwable]
    */
   fun log(tag: String?, message: String?, tr: Throwable?) {
-    if (DEBUG) {
+    if (isEnable) {
       Log.d(tag, message, tr)
     }
   }
@@ -62,7 +62,7 @@ object Debug {
    * @param message メッセージ
    */
   fun v(message: String?) {
-    if (DEBUG) {
+    if (isEnable) {
       Log.v(shortClassName, message!!)
     }
   }
@@ -155,7 +155,7 @@ object Debug {
      */
     get() {
       var shortName = "unknown"
-      if (DEBUG) {
+      if (isEnable) {
         val stackTraceElement = Throwable().stackTrace[2]
         if (stackTraceElement != null) {
           val fullName = stackTraceElement.className
@@ -172,7 +172,7 @@ object Debug {
    * @param message メッセージ
    */
   fun showShortToast(context: Context?, message: String?) {
-    if (DEBUG && !TextUtils.isEmpty(message)) {
+    if (isEnable && !TextUtils.isEmpty(message)) {
       Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
   }
@@ -184,7 +184,7 @@ object Debug {
    * @param message メッセージ
    */
   fun showLongToast(context: Context?, message: String?) {
-    if (DEBUG && !TextUtils.isEmpty(message)) {
+    if (isEnable && !TextUtils.isEmpty(message)) {
       Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
   }
@@ -193,7 +193,7 @@ object Debug {
    * [Intent]の中身をログ出力します。
    */
   fun intentLogger(intent: Intent?) {
-    if (DEBUG) {
+    if (isEnable) {
       val tag = shortClassName
       if (intent == null) {
         Log.v(tag, "Intent is null")
