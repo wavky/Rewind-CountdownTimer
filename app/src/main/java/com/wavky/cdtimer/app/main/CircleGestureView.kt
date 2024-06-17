@@ -20,6 +20,7 @@ class CircleGestureView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
   interface OnCircleGestureListener {
+    fun onTap()
     fun onCircleGesture(circleCount: Int, angle: Float, deltaAngle: Float)
     fun onCircleGestureStart()
     fun onGestureFinish()
@@ -96,6 +97,7 @@ class CircleGestureView @JvmOverloads constructor(
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
       performClick()
+      onCircleGestureListener?.onTap()
       return true
     }
 

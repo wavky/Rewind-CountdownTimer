@@ -1,10 +1,17 @@
 package com.wavky.cdtimer.app.main
 
+import android.animation.Animator
+import android.animation.ObjectAnimator
+import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -19,21 +26,25 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Timer
 import kotlin.concurrent.fixedRateTimer
-import kotlin.math.roundToInt
 
 private const val CLOCK_HAND_ROTATION_OFFSET = -90f
+private const val DEFAULT_SHAKE_DURATION = 10_000 // 10s
+private const val VIBRATION_AMPLITUDE = 255 // max amplitude
 
 class MainFragment : BaseFragment() {
 
   private var binding: FragmentMainBinding? = null
-  private var isCountdownStarted = false
+  private var isCountingDown = false
   private var isMuted = false
   private var countdownTimer: Timer? = null
   private var tickSoundJob: Job? = null
-  private var mediaPlayer: MediaPlayer? = null
+  private var tickingMediaPlayer: MediaPlayer? = null
+  private var alarmMediaPlayer: MediaPlayer? = null
+  private var clockAnimator: ObjectAnimator? = null
+  private var vibrator: Vibrator? = null
   private var totalAngle: Float = 0f
   private val countDownSeconds: Int
-    get() = (totalAngle / 6).roundToInt()
+    get() = (totalAngle / 6).toInt()
   private val countDownSecondsToDisplay
     get() = countDownSeconds % 60
   private val countDownMinutes
@@ -47,6 +58,10 @@ class MainFragment : BaseFragment() {
 
   private val onCircleGestureListener: OnCircleGestureListener
     get() = object : OnCircleGestureListener {
+      override fun onTap() {
+        stopAlarm()
+      }
+
       override fun onCircleGesture(circleCount: Int, angle: Float, deltaAngle: Float) {
         binding?.apply {
           totalAngle += deltaAngle
@@ -60,6 +75,7 @@ class MainFragment : BaseFragment() {
           }
           updateCountDownTextDisplay()
         }
+        stopAlarm()
       }
 
       override fun onCircleGestureStart() {
@@ -69,6 +85,7 @@ class MainFragment : BaseFragment() {
             secondHand.y + secondHand.height / 2
           )
         }
+        stopAlarm()
       }
 
       override fun onGestureFinish() {
@@ -87,8 +104,11 @@ class MainFragment : BaseFragment() {
   }
 
   private fun initMediaPlayer() {
-    mediaPlayer = MediaPlayer.create(requireContext(), R.raw.plastic_ticking).apply {
+    tickingMediaPlayer = MediaPlayer.create(requireContext(), R.raw.plastic_ticking).apply {
       isLooping = true
+      setVolume(1f, 1f)
+    }
+    alarmMediaPlayer = MediaPlayer.create(requireContext(), R.raw.alarm).apply {
       setVolume(1f, 1f)
     }
   }
@@ -102,32 +122,36 @@ class MainFragment : BaseFragment() {
       circleGestureView.onCircleGestureListener = onCircleGestureListener
       resetButton.setOnClickListener {
         totalAngle = 0f
-        isCountdownStarted = false
+        isCountingDown = false
         resetClockHandRotation()
         updateCountDownTextDisplay()
         stopCountDown()
+        stopAlarm()
         startButton.text = getString(R.string.start)
       }
       startButton.setOnClickListener {
-        if (!isCountdownStarted && totalAngle > 0) {
-          isCountdownStarted = true
+        if (!isCountingDown && totalAngle > 0) {
+          isCountingDown = true
           startButton.text = getString(R.string.stop)
           startCountDown()
         } else {
-          isCountdownStarted = false
+          isCountingDown = false
           startButton.text = getString(R.string.start)
           stopCountDown()
+          stopAlarm()
         }
       }
       soundButton.setOnClickListener {
         if (isMuted) {
           isMuted = false
-          mediaPlayer?.setVolume(1f, 1f)
+          tickingMediaPlayer?.setVolume(1f, 1f)
+          alarmMediaPlayer?.setVolume(1f, 1f)
           soundButton.imageTintList = null
           forbidMark.isGone = true
         } else {
           isMuted = true
-          mediaPlayer?.setVolume(0f, 0f)
+          tickingMediaPlayer?.setVolume(0f, 0f)
+          alarmMediaPlayer?.setVolume(0f, 0f)
           soundButton.imageTintList =
             ContextCompat.getColorStateList(requireContext(), android.R.color.darker_gray)
           forbidMark.isVisible = true
@@ -165,29 +189,32 @@ class MainFragment : BaseFragment() {
 
   private fun startCountDown() {
     tickSoundJob = lifecycleScope.launch(Dispatchers.IO) {
-      if (mediaPlayer == null) {
+      if (tickingMediaPlayer == null) {
         initMediaPlayer()
       }
+      stopAlarm()
       delay(1000)
-      mediaPlayer?.start()
+      tickingMediaPlayer?.start()
       while (true) {
         delay(300)
-        if (totalAngle < 4) {
+        if (totalAngle < 6) {
           stopTickSound()
+          startAlarm()
+          break
         }
         replayTickSoundAfter(32)
       }
     }
     countdownTimer = fixedRateTimer("countdownTimer", false, 1000, 1000) {
       totalAngle -= 6
-      if (totalAngle < 4) {
+      if (totalAngle < 6) {
         totalAngle = 0f
         lifecycleScope.launch(Dispatchers.Main) {
           resetClockHandRotation()
           updateCountDownTextDisplay()
           binding?.startButton?.text = getString(R.string.start)
         }
-        isCountdownStarted = false
+        isCountingDown = false
         cancel()
         return@fixedRateTimer
       }
@@ -210,13 +237,87 @@ class MainFragment : BaseFragment() {
     countdownTimer = null
   }
 
-  private fun stopTickSound() {
-    mediaPlayer?.pause()
-    mediaPlayer?.seekTo(0)
+  private fun startAlarm() {
+    alarmMediaPlayer?.seekTo(0)
+    alarmMediaPlayer?.start()
+
+    lifecycleScope.launch(Dispatchers.Main) {
+      startClockShakeAnimation()
+    }
+
+    startVibration()
   }
 
+  private fun stopAlarm() {
+    alarmMediaPlayer?.apply {
+      if (isPlaying) pause()
+      seekTo(0)
+    }
+
+    lifecycleScope.launch(Dispatchers.Main) {
+      stopClockShakeAnimation()
+    }
+
+    vibrator?.cancel()
+  }
+
+  private fun stopTickSound() {
+    tickingMediaPlayer?.apply {
+      if (isPlaying) pause()
+      seekTo(0)
+    }
+  }
+
+  private fun startClockShakeAnimation() {
+    binding?.apply {
+      clockAnimator?.cancel()
+      clockAnimator = ObjectAnimator.ofFloat(clockBg, "translationX", -10f, 10f).apply {
+        duration = 50
+        repeatMode = ObjectAnimator.REVERSE
+        repeatCount = (alarmMediaPlayer?.remainingTime ?: DEFAULT_SHAKE_DURATION) / duration.toInt()
+        val onAnimatorEnd = { _: Animator ->
+          clockBg.translationX = 0f
+        }
+        addListener(onEnd = onAnimatorEnd, onCancel = onAnimatorEnd)
+        start()
+      }
+    }
+  }
+
+  private fun stopClockShakeAnimation() {
+    binding?.apply {
+      clockAnimator?.cancel()
+      clockAnimator = null
+      clockBg.translationX = 0f
+    }
+  }
+
+  private fun startVibration() {
+    context?.apply {
+      vibrator?.cancel()
+      vibrator = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+        val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        vibratorManager.defaultVibrator
+      } else {
+        getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+      }.apply {
+        if (hasVibrator()) {
+          vibrate(
+            VibrationEffect.createOneShot(
+              (alarmMediaPlayer?.remainingTime ?: DEFAULT_SHAKE_DURATION).toLong(),
+              VIBRATION_AMPLITUDE
+            )
+          )
+        }
+      }
+    }
+  }
+
+  private val MediaPlayer.remainingTime: Int
+    get() = duration - currentPosition
+
   private fun replayTickSoundAfter(seconds: Int) {
-    mediaPlayer?.apply {
+    tickingMediaPlayer?.apply {
       if (currentPosition >= seconds * 1000) {
         seekTo(currentPosition - seconds * 1000)
       }
@@ -226,8 +327,10 @@ class MainFragment : BaseFragment() {
   override fun onDestroyView() {
     super.onDestroyView()
     stopCountDown()
-    mediaPlayer?.release()
-    mediaPlayer = null
+    tickingMediaPlayer?.release()
+    tickingMediaPlayer = null
+    alarmMediaPlayer?.release()
+    alarmMediaPlayer = null
     binding = null
   }
 
