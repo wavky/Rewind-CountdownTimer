@@ -106,7 +106,7 @@ class MainFragment : BaseFragment() {
   private val currDisplayHours
     get() = totalAngle.angleToDisplayHours()
 
-  // todo 隐藏操作界面的按钮
+  // 添加咖啡杯
   private val onCircleGestureListener: OnCircleGestureListener
     get() = object : OnCircleGestureListener {
       override fun onTap() {
@@ -262,6 +262,7 @@ class MainFragment : BaseFragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding?.apply {
+      visibleButton.isActivated = true
       resetClockHandRotation()
       updateCountDownTextDisplay()
 
@@ -283,6 +284,18 @@ class MainFragment : BaseFragment() {
         }
         stopTimeTextScaleAnimation()
         resetClockHandReceiveCircleGesture()
+      }
+      visibleButton.setOnClickListener {
+        if (visibleButton.isActivated) {
+          visibleButton.isActivated = false
+          timerHmsGroup.isGone = true
+          timerMsGroup.isGone = true
+          buttonGroup.isGone = true
+        } else {
+          visibleButton.isActivated = true
+          buttonGroup.isVisible = true
+          updateCountDownTextDisplay()
+        }
       }
       soundButton.setOnClickListener {
         if (isMuted) {
@@ -357,6 +370,8 @@ class MainFragment : BaseFragment() {
 
   private fun updateCountDownTextDisplay() {
     binding?.apply {
+      if (!visibleButton.isActivated) return
+
       if (currHours == 0) {
         timerHmsGroup.visibility = View.GONE
         timerMsGroup.visibility = View.VISIBLE
