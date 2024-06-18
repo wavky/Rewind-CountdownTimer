@@ -52,6 +52,11 @@ class CircleGestureView @JvmOverloads constructor(
     customCenterPoint = PointF(x, y)
   }
 
+  fun resetCalculation() {
+    totalAngle = 0f
+    circleCount = 0
+  }
+
   override fun onTouchEvent(event: MotionEvent?): Boolean {
     val eventHandled = event?.let {
       gestureDetector.onTouchEvent(event)
@@ -130,8 +135,11 @@ class CircleGestureView @JvmOverloads constructor(
         val prevAngle = calculateAngle(centerX, centerY, prevX, prevY)
         val deltaAngle = normalizeAngle(angle - prevAngle)
         totalAngle += deltaAngle
-        if (totalAngle >= 360 || totalAngle <= -360) {
+        if (totalAngle >= 360) {
           circleCount++
+          totalAngle = 0f
+        } else if (totalAngle <= -360) {
+          circleCount--
           totalAngle = 0f
         }
         onCircleGestureListener?.onCircleGesture(circleCount, totalAngle, deltaAngle)

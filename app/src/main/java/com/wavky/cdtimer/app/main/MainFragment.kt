@@ -30,8 +30,17 @@ import kotlin.concurrent.fixedRateTimer
 private const val CLOCK_HAND_ROTATION_OFFSET = -90f
 private const val DEFAULT_SHAKE_DURATION = 10_000 // 10s
 private const val VIBRATION_AMPLITUDE = 255 // max amplitude
+private const val DEGREES_IN_MINUTE = 360f
+private const val DEGREES_IN_HOUR = 360 * 60f
+private const val MAX_DEGREES_OF_TIME = 100 * DEGREES_IN_HOUR
 
 class MainFragment : BaseFragment() {
+
+  private enum class ClockHand {
+    SECOND,
+    MINUTE,
+    HOUR,
+  }
 
   private var binding: FragmentMainBinding? = null
   private var isCountingDown = false
@@ -41,37 +50,105 @@ class MainFragment : BaseFragment() {
   private var tickingMediaPlayer: MediaPlayer? = null
   private var alarmMediaPlayer: MediaPlayer? = null
   private var clockAnimator: ObjectAnimator? = null
+  private var timeXAnimator: ObjectAnimator? = null
+  private var timeYAnimator: ObjectAnimator? = null
   private var vibrator: Vibrator? = null
+  private var clockHandReceiveCircleGesture = ClockHand.SECOND
+  private var prevTotalAngle: Float = 0f
   private var totalAngle: Float = 0f
+  private fun Float.toCountDownSeconds(): Int = (this / 6).toInt()
   private val countDownSeconds: Int
-    get() = (totalAngle / 6).toInt()
+    get() = totalAngle.toCountDownSeconds()
+
+  private fun Float.toCountDownSecondsToDisplay(): Int = this.toCountDownSeconds() % 60
   private val countDownSecondsToDisplay
-    get() = countDownSeconds % 60
+    get() = totalAngle.toCountDownSecondsToDisplay()
+
+  private fun Float.toCountDownMinutes(): Int = this.toCountDownSeconds() / 60
   private val countDownMinutes
-    get() = countDownSeconds / 60
+    get() = totalAngle.toCountDownMinutes()
+
+  private fun Float.toCountDownMinutesToDisplay(): Int = this.toCountDownMinutes() % 60
   private val countDownMinutesToDisplay
-    get() = countDownMinutes % 60
+    get() = totalAngle.toCountDownMinutesToDisplay()
+
+  private fun Float.toCountDownHours(): Int = this.toCountDownMinutes() / 60
   private val countDownHours
-    get() = countDownMinutes / 60
+    get() = totalAngle.toCountDownHours()
+
+  private fun Float.toCountDownHoursToDisplay(): Int = this.toCountDownHours() % 12
   private val countDownHoursToDisplay
-    get() = countDownHours % 12
+    get() = totalAngle.toCountDownHoursToDisplay()
 
   private val onCircleGestureListener: OnCircleGestureListener
     get() = object : OnCircleGestureListener {
       override fun onTap() {
         stopAlarm()
+        stopTimeTextScaleAnimation()
+        resetClockHandReceiveCircleGesture()
       }
 
       override fun onCircleGesture(circleCount: Int, angle: Float, deltaAngle: Float) {
         binding?.apply {
-          totalAngle += deltaAngle
-          if (totalAngle < 0) {
-            totalAngle = 0f
-            resetClockHandRotation()
-          } else {
-            secondHand.rotation += deltaAngle
-            minuteHand.rotation += deltaAngle / 60
-            hourHand.rotation += deltaAngle / 720
+          if (totalAngle >= MAX_DEGREES_OF_TIME && deltaAngle > 0) {
+            circleGestureView.resetCalculation()
+            return
+          } else if (totalAngle <= 0 && deltaAngle < 0) {
+            circleGestureView.resetCalculation()
+            return
+          }
+          when (clockHandReceiveCircleGesture) {
+            ClockHand.SECOND -> totalAngle += deltaAngle
+
+            ClockHand.MINUTE -> totalAngle =
+              (circleCount * 60 + angle.toInt() / 6) * DEGREES_IN_MINUTE + prevTotalAngle
+
+            ClockHand.HOUR -> totalAngle =
+              (circleCount * 12 + angle.toInt() / 30) * DEGREES_IN_HOUR + prevTotalAngle
+          }
+
+          // 旋转指针，限制最大值 100 小时
+          when {
+            totalAngle > MAX_DEGREES_OF_TIME -> {
+              totalAngle = MAX_DEGREES_OF_TIME
+              prevTotalAngle = MAX_DEGREES_OF_TIME
+              secondHand.rotation =
+                totalAngle.toCountDownSecondsToDisplay() * 6f + CLOCK_HAND_ROTATION_OFFSET
+              minuteHand.rotation =
+                totalAngle.toCountDownMinutesToDisplay() * 6f + CLOCK_HAND_ROTATION_OFFSET
+              hourHand.rotation =
+                totalAngle.toCountDownHoursToDisplay() * 30f + CLOCK_HAND_ROTATION_OFFSET
+            }
+
+            totalAngle < 0 -> {
+              totalAngle = 0f
+              prevTotalAngle = 0f
+              resetClockHandRotation()
+            }
+
+            else -> {
+              when (clockHandReceiveCircleGesture) {
+                ClockHand.SECOND -> {
+                  secondHand.rotation += deltaAngle
+                  minuteHand.rotation += deltaAngle / 60
+                  hourHand.rotation += deltaAngle / 720
+                }
+
+                ClockHand.MINUTE -> {
+                  minuteHand.rotation =
+                    totalAngle.toCountDownMinutesToDisplay() * 6f + CLOCK_HAND_ROTATION_OFFSET +
+                      prevTotalAngle.toCountDownSecondsToDisplay() / 10f
+                  hourHand.rotation =
+                    totalAngle.toCountDownMinutes() / 2f + CLOCK_HAND_ROTATION_OFFSET
+                }
+
+                ClockHand.HOUR -> {
+                  hourHand.rotation =
+                    totalAngle.toCountDownHoursToDisplay() * 30f + CLOCK_HAND_ROTATION_OFFSET +
+                      prevTotalAngle.toCountDownMinutesToDisplay() / 2f
+                }
+              }
+            }
           }
           updateCountDownTextDisplay()
         }
@@ -85,13 +162,19 @@ class MainFragment : BaseFragment() {
             secondHand.y + secondHand.height / 2
           )
         }
+        prevTotalAngle = totalAngle
         stopAlarm()
       }
 
       override fun onGestureFinish() {
-        // Do something
+        stopTimeTextScaleAnimation()
+        resetClockHandReceiveCircleGesture()
       }
     }
+
+  private fun resetClockHandReceiveCircleGesture() {
+    clockHandReceiveCircleGesture = ClockHand.SECOND
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -140,6 +223,8 @@ class MainFragment : BaseFragment() {
           stopCountDown()
           stopAlarm()
         }
+        stopTimeTextScaleAnimation()
+        resetClockHandReceiveCircleGesture()
       }
       soundButton.setOnClickListener {
         if (isMuted) {
@@ -157,6 +242,26 @@ class MainFragment : BaseFragment() {
           forbidMark.isVisible = true
         }
       }
+      msSecondText.setOnClickListener {
+        clockHandReceiveCircleGesture = ClockHand.SECOND
+        startTimeTextScaleAnimation()
+      }
+      hmsSecondText.setOnClickListener {
+        clockHandReceiveCircleGesture = ClockHand.SECOND
+        startTimeTextScaleAnimation()
+      }
+      msMinuteText.setOnClickListener {
+        clockHandReceiveCircleGesture = ClockHand.MINUTE
+        startTimeTextScaleAnimation()
+      }
+      hmsMinuteText.setOnClickListener {
+        clockHandReceiveCircleGesture = ClockHand.MINUTE
+        startTimeTextScaleAnimation()
+      }
+      hmsHourText.setOnClickListener {
+        clockHandReceiveCircleGesture = ClockHand.HOUR
+        startTimeTextScaleAnimation()
+      }
     }
   }
 
@@ -170,7 +275,7 @@ class MainFragment : BaseFragment() {
 
   private fun updateCountDownTextDisplay() {
     binding?.apply {
-      if (countDownHoursToDisplay == 0) {
+      if (countDownHours == 0) {
         timerHmsGroup.visibility = View.GONE
         timerMsGroup.visibility = View.VISIBLE
 
@@ -180,7 +285,7 @@ class MainFragment : BaseFragment() {
         timerHmsGroup.visibility = View.VISIBLE
         timerMsGroup.visibility = View.GONE
 
-        hmsHourText.text = countDownHoursToDisplay.toTimeString()
+        hmsHourText.text = countDownHours.toTimeString()
         hmsMinuteText.text = countDownMinutesToDisplay.toTimeString()
         hmsSecondText.text = countDownSecondsToDisplay.toTimeString()
       }
@@ -267,6 +372,39 @@ class MainFragment : BaseFragment() {
       seekTo(0)
     }
   }
+
+  private fun startTimeTextScaleAnimation() {
+    binding?.apply {
+      stopTimeTextScaleAnimation()
+      val timeText = when (clockHandReceiveCircleGesture) {
+        ClockHand.SECOND -> hmsSecondText.takeIf { it.isVisible } ?: msSecondText
+        ClockHand.MINUTE -> hmsMinuteText.takeIf { it.isVisible } ?: msMinuteText
+        ClockHand.HOUR -> hmsHourText
+      }
+      timeXAnimator = timeText.makeScaleAnimation("scaleX")
+      timeYAnimator = timeText.makeScaleAnimation("scaleY")
+    }
+  }
+
+  private fun stopTimeTextScaleAnimation() {
+    timeXAnimator?.cancel()
+    timeYAnimator?.cancel()
+    timeXAnimator = null
+    timeYAnimator = null
+  }
+
+  private fun View.makeScaleAnimation(scale: String): ObjectAnimator =
+    ObjectAnimator.ofFloat(this, scale, 1f, 1.5f).apply {
+      duration = 500
+      repeatMode = ObjectAnimator.REVERSE
+      repeatCount = ObjectAnimator.INFINITE
+      val onAnimatorEnd = { _: Animator ->
+        scaleX = 1f
+        scaleY = 1f
+      }
+      addListener(onEnd = onAnimatorEnd, onCancel = onAnimatorEnd)
+      start()
+    }
 
   private fun startClockShakeAnimation() {
     binding?.apply {

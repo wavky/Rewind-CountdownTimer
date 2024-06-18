@@ -97,6 +97,12 @@
       app:layout_constraintTop_toTopOf="parent"
       />
 
+  <com.wavky.cdtimer.app.main.CircleGestureView
+      android:id="@+id/circle_gesture_view"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      />
+
   <TextView
       android:id="@+id/hms_hour_text"
       style="@style/timer_text"
@@ -159,12 +165,6 @@
       app:layout_constraintStart_toEndOf="@id/colon_text"
       app:layout_constraintTop_toTopOf="parent"
       tools:text="45"
-      />
-
-  <com.wavky.cdtimer.app.main.CircleGestureView
-      android:id="@+id/circle_gesture_view"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
       />
 
   <ImageView
