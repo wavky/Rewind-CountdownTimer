@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">CDTimer</string>
+  <string name="app_name">Rewind</string>
 
   <string name="time_colon"> : </string>
   <string name="reset">Reset</string>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">时光倒流</string>
+
+  <string name="time_colon"> : </string>
+  <string name="reset">重置</string>
+  <string name="start">开始</string>
+  <string name="stop">停止</string>
+</resources>
