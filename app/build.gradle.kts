@@ -147,7 +147,7 @@ dependencies {
   implementation("androidx.core:core-ktx:1.13.1")
   implementation("androidx.appcompat:appcompat:1.7.0")
   implementation("androidx.cardview:cardview:1.0.0")
-  implementation("androidx.fragment:fragment-ktx:1.7.1")
+  implementation("androidx.fragment:fragment-ktx:1.8.0")
   implementation("androidx.constraintlayout:constraintlayout:2.1.4")
   implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
   implementation("androidx.recyclerview:recyclerview:1.3.2")
@@ -174,7 +174,8 @@ dependencies {
 
   // ------ 3rd-party libraries ------
   // glide
-  implementation("com.github.bumptech.glide:glide:4.11.0")
+  implementation("com.github.bumptech.glide:glide:4.12.0")
+  implementation("jp.wasabeef:glide-transformations:4.3.0")
   // okhttp3
   implementation("com.squareup.okhttp3:okhttp:3.14.9")
   implementation("com.squareup.okhttp3:logging-interceptor:3.10.0")

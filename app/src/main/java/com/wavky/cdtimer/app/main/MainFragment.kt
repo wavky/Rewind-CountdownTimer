@@ -15,21 +15,27 @@ import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.core.view.setPadding
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.wavky.cdtimer.R
 import com.wavky.cdtimer.app.main.CircleGestureView.OnCircleGestureListener
 import com.wavky.cdtimer.app.main.MainFragment.ClockHand.HOUR
 import com.wavky.cdtimer.app.main.MainFragment.ClockHand.MINUTE
 import com.wavky.cdtimer.app.main.MainFragment.ClockHand.SECOND
 import com.wavky.cdtimer.common.app.ui.fragment.BaseFragment
+import com.wavky.cdtimer.common.ext.dpToPx
 import com.wavky.cdtimer.databinding.FragmentMainBinding
+import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Timer
 import kotlin.concurrent.fixedRateTimer
+import kotlin.random.Random
 
+private const val COFFEE_BLUR_RADIUS = 8 // 咖啡杯高斯模糊半径 8
 private const val DEFAULT_SHAKE_DURATION = 10_000 // 闹钟图像晃动默认时长 10s
 private const val VIBRATION_AMPLITUDE = 255 // 最大震动强度
 private const val SHAKE_AMPLITUDE = 10f // 闹钟图像晃动幅度
@@ -105,6 +111,8 @@ class MainFragment : BaseFragment() {
     get() = totalAngle.angleToHours()
   private val currDisplayHours
     get() = totalAngle.angleToDisplayHours()
+
+  private val random = Random(System.currentTimeMillis())
 
   // 添加咖啡杯
   private val onCircleGestureListener: OnCircleGestureListener
@@ -265,6 +273,7 @@ class MainFragment : BaseFragment() {
       visibleButton.isActivated = true
       resetClockHandRotation()
       updateCountDownTextDisplay()
+      initDrinkImage()
 
       circleGestureView.onCircleGestureListener = onCircleGestureListener
       resetButton.setOnClickListener {
@@ -328,6 +337,26 @@ class MainFragment : BaseFragment() {
       hmsHourText.setOnClickListener {
         doOnTimeTextClick(HOUR)
       }
+    }
+  }
+
+  private fun initDrinkImage() {
+    binding?.drinkImage?.apply {
+      val visible = random.nextBoolean()
+      isVisible = visible
+      if (!visible) return
+
+      val padding = random.nextInt(requireContext().dpToPx(24))
+      val xOffset = random.nextInt(requireContext().dpToPx(30))
+      val yOffset = random.nextInt(requireContext().dpToPx(50))
+      setPadding(padding)
+      x += xOffset
+      y += yOffset
+
+      Glide.with(this@MainFragment)
+        .load(R.drawable.drink)
+        .transform(BlurTransformation(COFFEE_BLUR_RADIUS))
+        .into(this)
     }
   }
 
