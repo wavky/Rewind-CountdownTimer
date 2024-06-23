@@ -46,6 +46,7 @@ private const val MAX_VOLUME = 1f // 最大音量
 private const val MIN_VOLUME = 0f // 静音
 private const val TICKS_REPLAY_INTERVAL_MS = 32 * 1000 // 重播滴答声的时间间隔 32s
 private const val TICKS_CHECK_INTERVAL_MS = 300L // 检查滴答声的时间间隔 300ms
+private const val QUICK_TICKS_AUTO_STOP_DELAY_MS = 500L // 快速滴答声自动停止延迟 0.5s
 private const val COUNTDOWN_INITIAL_DELAY_MS = 1000L // 倒计时初始延迟 1s
 private const val COUNTDOWN_INTERVAL_MS = 1000L // 倒计时间隔 1s
 
@@ -83,7 +84,9 @@ class MainFragment : BaseFragment() {
   private var isMuted = false
   private var countdownTimer: Timer? = null
   private var tickSoundJob: Job? = null
+  private var stopQuickTickJob: Job? = null
   private var tickingMediaPlayer: MediaPlayer? = null
+  private var quickTickingMediaPlayer: MediaPlayer? = null
   private var alarmMediaPlayer: MediaPlayer? = null
   private var clockAnimator: ObjectAnimator? = null
   private var timeXAnimator: ObjectAnimator? = null
@@ -140,15 +143,22 @@ class MainFragment : BaseFragment() {
        * @param deltaAngle Float 当次回调的增量角度
        */
       override fun onCircleGesture(circleCount: Int, angle: Float, deltaAngle: Float) {
+        stopQuickTickJob?.cancel()
         binding?.apply {
           // 不再处理超过有效时间范围的旋转
           if (totalAngle >= MAX_DEGREES_OF_TIME && deltaAngle > 0 ||
             totalAngle <= 0 && deltaAngle < 0
           ) {
+            stopQuickTickSound()
             circleGestureView.resetCalculation()
             return
           }
 
+          startQuickTickSound()
+          stopQuickTickJob = lifecycleScope.launch {
+            delay(QUICK_TICKS_AUTO_STOP_DELAY_MS)
+            stopQuickTickSound()
+          }
           // 旋转不同指针时的计算新的总角度
           when (clockHandReceiveCircleGesture) {
             SECOND -> totalAngle += deltaAngle
@@ -210,6 +220,7 @@ class MainFragment : BaseFragment() {
       }
 
       override fun onGestureFinish() {
+        stopQuickTickSound()
         stopTimeTextScaleAnimation()
         adjustClockHandsRotation()
         resetClockHandReceiveCircleGesture()
@@ -269,6 +280,10 @@ class MainFragment : BaseFragment() {
       isLooping = true
       setVolume(MAX_VOLUME, MAX_VOLUME)
     }
+    quickTickingMediaPlayer = MediaPlayer.create(requireContext(), R.raw.quick_ticking).apply {
+      isLooping = true
+      setVolume(MAX_VOLUME, MAX_VOLUME)
+    }
     alarmMediaPlayer = MediaPlayer.create(requireContext(), R.raw.alarm).apply {
       setVolume(MAX_VOLUME, MAX_VOLUME)
     }
@@ -317,12 +332,14 @@ class MainFragment : BaseFragment() {
         if (isMuted) {
           isMuted = false
           tickingMediaPlayer?.setVolume(MAX_VOLUME, MAX_VOLUME)
+          quickTickingMediaPlayer?.setVolume(MAX_VOLUME, MAX_VOLUME)
           alarmMediaPlayer?.setVolume(MAX_VOLUME, MAX_VOLUME)
           soundButton.imageTintList = null
           forbidMark.isGone = true
         } else {
           isMuted = true
           tickingMediaPlayer?.setVolume(MIN_VOLUME, MIN_VOLUME)
+          quickTickingMediaPlayer?.setVolume(MIN_VOLUME, MIN_VOLUME)
           alarmMediaPlayer?.setVolume(MIN_VOLUME, MIN_VOLUME)
           soundButton.imageTintList =
             ContextCompat.getColorStateList(requireContext(), android.R.color.darker_gray)
@@ -513,6 +530,21 @@ class MainFragment : BaseFragment() {
     }
   }
 
+  private fun startQuickTickSound() {
+    quickTickingMediaPlayer?.apply {
+      if (!isPlaying) {
+        start()
+      }
+    }
+  }
+
+  private fun stopQuickTickSound() {
+    quickTickingMediaPlayer?.apply {
+      if (isPlaying) pause()
+      seekTo(0)
+    }
+  }
+
   private fun startTimeTextScaleAnimation() {
     binding?.apply {
       stopTimeTextScaleAnimation()
@@ -609,6 +641,8 @@ class MainFragment : BaseFragment() {
     stopCountDown()
     tickingMediaPlayer?.release()
     tickingMediaPlayer = null
+    quickTickingMediaPlayer?.release()
+    quickTickingMediaPlayer = null
     alarmMediaPlayer?.release()
     alarmMediaPlayer = null
     binding = null
