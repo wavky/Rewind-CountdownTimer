@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/info_bg"
+    android:padding="32dp"
+    >
+
+  <TextView
+      android:id="@+id/title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/app_name"
+      android:textColor="@color/white"
+      android:textSize="28sp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <TextView
+      android:id="@+id/version"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="12dp"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:textColor="@color/white"
+      android:textSize="20sp"
+      app:layout_constraintBaseline_toBaselineOf="@id/title"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toEndOf="@id/title"
+      tools:text="v1.0"
+      />
+
+  <LinearLayout
+      android:id="@+id/github_box"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="32dp"
+      android:background="#f8f8f8"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      android:padding="24dp"
+      app:layout_constraintEnd_toEndOf="@id/credits_box"
+      app:layout_constraintStart_toStartOf="@id/credits_box"
+      app:layout_constraintTop_toBottomOf="@id/title"
+      >
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_github"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/github_name"
+        android:textColor="@color/black_444"
+        android:textSize="20sp"
+        />
+  </LinearLayout>
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/credits_box"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="24dp"
+      android:background="#f8f8f8"
+      android:clipToPadding="false"
+      android:gravity="center_vertical"
+      android:padding="24dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/github_box"
+      >
+
+    <TextView
+        android:id="@+id/credits"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-12dp"
+        android:text="@string/credits"
+        android:textColor="@color/black_444"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/clock_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="12dp"
+        android:src="@drawable/ic_clock"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/credits"
+        />
+
+    <TextView
+        android:id="@+id/clock_creator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/clock_creator"
+        android:textColor="@color/black_444"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/clock_icon"
+        app:layout_constraintStart_toEndOf="@id/clock_icon"
+        app:layout_constraintTop_toTopOf="@id/clock_icon"
+        />
+
+    <ImageView
+        android:id="@+id/app_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_app"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/clock_icon"
+        />
+
+    <TextView
+        android:id="@+id/app_icon_creator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/app_icon_creator"
+        android:textColor="@color/black_444"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/app_icon"
+        app:layout_constraintStart_toEndOf="@id/app_icon"
+        app:layout_constraintTop_toTopOf="@id/app_icon"
+        />
+
+    <ImageView
+        android:id="@+id/drink_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/drink"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/app_icon"
+        />
+
+    <TextView
+        android:id="@+id/drink_creator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/drink_creator"
+        android:textColor="@color/black_444"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/drink_icon"
+        app:layout_constraintStart_toEndOf="@id/drink_icon"
+        app:layout_constraintTop_toTopOf="@id/drink_icon"
+        />
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

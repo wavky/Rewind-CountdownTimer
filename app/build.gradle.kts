@@ -45,10 +45,9 @@ android {
   }
 
   buildTypes {
-    val buildNum = System.getenv("BUILD_NUMBER")
     debug {
       val date = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-      versionNameSuffix = "_${date}#${buildNum}"
+      versionNameSuffix = "_${date}"
       applicationIdSuffix = ".debug"
       isMinifyEnabled = false
       manifestPlaceholders["crashlyticsCollectionEnabled"] = false
@@ -63,13 +62,13 @@ android {
     }
     create("beta").initWith(buildTypes.getByName("release"))
     getByName("beta") {
-      versionNameSuffix = "_${beta}#${buildNum}"
+      versionNameSuffix = "_${beta}"
       applicationIdSuffix = ".beta"
       isDebuggable = true
     }
     create("staging").initWith(buildTypes.getByName("release"))
     getByName("staging") {
-      versionNameSuffix = "_${staging}#${buildNum}"
+      versionNameSuffix = "_${staging}"
       applicationIdSuffix = ".stg"
       isDebuggable = true
     }

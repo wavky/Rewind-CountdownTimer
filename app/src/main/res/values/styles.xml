@@ -17,4 +17,9 @@
     <item name="android:layout_height">wrap_content</item>
     <item name="android:paddingVertical">12dp</item>
   </style>
+
+  <style name="dialog" parent="@android:style/Theme.Holo.Light.Dialog">
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowBackground">@android:color/transparent</item>
+  </style>
 </resources>

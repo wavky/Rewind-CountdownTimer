@@ -114,13 +114,20 @@ class MainFragment : BaseFragment() {
 
   private val random = Random(System.currentTimeMillis())
 
-  // 添加咖啡杯
   private val onCircleGestureListener: OnCircleGestureListener
     get() = object : OnCircleGestureListener {
-      override fun onTap() {
-        stopAlarm()
-        stopTimeTextScaleAnimation()
-        resetClockHandReceiveCircleGesture()
+      override fun onTap(x: Float, y: Float, rawX: Float, rawY: Float) {
+        binding?.apply {
+          if (drinkImage.isVisible &&
+            x >= drinkImage.x && x <= drinkImage.x + drinkImage.width &&
+            y >= drinkImage.y && y <= drinkImage.y + drinkImage.height
+          ) {
+            onDrinkImageClick()
+          }
+          stopAlarm()
+          stopTimeTextScaleAnimation()
+          resetClockHandReceiveCircleGesture()
+        }
       }
 
       /**
@@ -358,6 +365,10 @@ class MainFragment : BaseFragment() {
         .transform(BlurTransformation(COFFEE_BLUR_RADIUS))
         .into(this)
     }
+  }
+
+  private fun onDrinkImageClick() {
+    InfoDialogFragment().show(parentFragmentManager, "InfoDialogFragment")
   }
 
   private fun doOnTimeTextClick(type: ClockHand) {

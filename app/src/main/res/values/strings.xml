@@ -1,8 +1,17 @@
 <resources>
   <string name="app_name">Rewind</string>
+  <string name="version" translatable="false">v%s</string>
 
   <string name="time_colon"> : </string>
   <string name="reset">Reset</string>
   <string name="start">Start</string>
   <string name="stop">Stop</string>
+  <string name="github_name" translatable="false">Wavky Huang</string>
+  <string name="github_url" translatable="false">https://github.com/wavky/Rewind-CountdownTimer</string>
+
+  <!-- Credits -->
+  <string name="credits">Credits</string>
+  <string name="clock_creator" translatable="false">StarGlade@pixabay</string>
+  <string name="app_icon_creator" translatable="false">videoplasty@pixabay</string>
+  <string name="drink_creator">Darkmoon_Art@pixabay</string>
 </resources>

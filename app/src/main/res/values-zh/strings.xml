@@ -6,4 +6,8 @@
   <string name="reset">重置</string>
   <string name="start">開始</string>
   <string name="stop">停止</string>
+
+  <!-- Credits -->
+  <string name="credits">素材提供</string>
+  <string name="drink_creator">deeznutz1@pixabay</string>
 </resources>
