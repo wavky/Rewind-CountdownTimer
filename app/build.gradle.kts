@@ -24,7 +24,7 @@ android {
     applicationId = "com.wavky.cdtimer"
     minSdk = 30 // Android 11
     targetSdk = 34
-    versionCode = 3
+    versionCode = 4
     versionName = "1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -152,9 +152,6 @@ dependencies {
   // Kotlin
   implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
   implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
-
-  // Feature module Support
-  implementation("androidx.navigation:navigation-dynamic-features-fragment:$navVersion")
 
   // ------ google系 ------
   implementation("com.google.android.material:material:1.12.0")
